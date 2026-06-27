@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# Local data and generated outputs
+data/
+output/
+outputs/
+deliverables/
+*.docx
+*.pptx
+*.pdf
+*.xlsx
+*.csv
+*.zip
+
+# Secrets and local config
+.env
+.env.*
+*.key
+*.token
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
