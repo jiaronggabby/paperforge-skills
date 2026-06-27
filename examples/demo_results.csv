@@ -1,0 +1,4 @@
+method,accuracy,f1,calibration_error
+Baseline,0.781,0.742,0.091
+Prompt-only,0.816,0.779,0.074
+PaperForge,0.852,0.817,0.052

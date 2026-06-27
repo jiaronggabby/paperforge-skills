@@ -17,6 +17,7 @@ deliverables/
 *.pdf
 *.xlsx
 *.csv
+!examples/demo_results.csv
 *.zip
 
 # Secrets and local config
