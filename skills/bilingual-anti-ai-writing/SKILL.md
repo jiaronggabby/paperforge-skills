@@ -28,6 +28,21 @@ Reduce:
 - Punctuation that imitates structure: stacked colons, quotation marks, semicolons, and formula-like lists.
 - Defensive contrast that repeats "not X but Y" before the scientific tension is clear.
 
+## Compact Chinese Academic Checklist
+
+Use this for Chinese grant and academic prose. Keep it short and apply it before doing sentence-level polishing.
+
+- Put each sentence where the logic needs it. Delete prompt residue, internal process notes, and defensive explanation that the reader did not ask for.
+- Prefer natural Chinese order. Change stiff translated turns such as "A, key depends on whether B" to "A能否成立取决于B" or another normal Chinese sentence.
+- Use fewer colons, semicolons, quotation marks, and long dashes. Prefer periods and commas; if a dash is needed, use a plain hyphen.
+- Use "不是...而是...", "并非...而是...", "不仅...还...", and balanced "既包括...也包括..." structures sparingly. Do not let them appear in a chain.
+- Remove AI or internal workflow terms unless the target text is a technical protocol: Stage0, Stage-1, 入模, 通道激活, 压力测试, 边界场景, claim ceiling, paper-facing, evidence gate, manual_claim_digest, K(E), 响应证据矩阵E.
+- Define academic abbreviations at first use as 中文全称 + English full name + abbreviation, then use the abbreviation. Do not omit the full name or invent a stiff literal translation.
+- Connect formulas to prose. Write one sentence to introduce the formula, show the formula, then explain it with "其中...". Avoid lonely "公式一/二/三/四" labels.
+- Reducing AI traces must not downgrade the text. Preserve novelty, evidence, numbers, applicant capability, and the strongest justified claim.
+- Keep some Chinese rhythm. Avoid making every sentence short or purely engineering-like, but never sacrifice clear logic.
+- Final read-through: check odd breaks, hard commas, repeated meaning, and any user prompt words accidentally copied into the text.
+
 ## 5-Point Diagnostic Rubric
 
 Score each dimension from 1 to 5. A strong passage usually reaches 21/25 or above. When revising, improve the lowest-scoring dimension first instead of replacing every suspicious phrase.
