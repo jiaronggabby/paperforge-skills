@@ -22,6 +22,7 @@ turns those recurring problems into reusable agent skills.
 
 - `paperforge-delivery`: end-to-end paper/PPT/figure/submission delivery
 - `paper-polish`: academic prose revision with claim discipline
+- `bilingual-anti-ai-writing`: Chinese-English anti-AI writing skill/checklist for grants, papers, cover letters, and reports
 - `figure-style-studio`: publication-style plotting and color guidance
 - `results-auditor`: result, metric, split, and claim consistency checks
 - `reviewer-response`: rebuttal planning and response writing
@@ -77,6 +78,10 @@ Use figure-style-studio to redraw these result tables as publication-style figur
 
 ```text
 Use paper-polish to revise this discussion section so it sounds natural and keeps every claim tied to the evidence.
+```
+
+```text
+Use bilingual-anti-ai-writing to reduce AI-like wording in this Chinese grant section while preserving technical terms and innovation.
 ```
 
 ```text
