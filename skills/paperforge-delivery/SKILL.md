@@ -117,6 +117,9 @@ comments, and explicit instructions.
 - Preserve embedded figures when editing `.docx` manuscripts. After any major
   Word edit, verify that the main document still contains the expected number of
   figures and that captions are followed by image objects, not captions alone.
+- For Word and similar document deliverables, set document author and creator
+  metadata to `jiarong` unless the user explicitly asks for a different author
+  name.
 - If supplementary figures or tables become substantial, place them in a
   separate supplementary Word document that matches the main manuscript layout.
 - Keep the main manuscript visually clean: black body text, stable heading
