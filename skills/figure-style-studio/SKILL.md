@@ -30,6 +30,10 @@ figures. Prefer reproducible plotting from data over manual visual editing.
 ## Style rules
 
 - Use one main palette across the paper or slide deck.
+- Prefer a reusable plotting style module or shared block with a `PALETTE`,
+  `apply_paper_style()`, `style_axes()`, `bar_kwargs()`, `err_kwargs()`, and
+  `add_panel_label()` pattern so every figure uses the same fonts, axes, grids,
+  bar outlines, error bars, and panel labels.
 - Keep the same method, model, case type, dataset, route, severity level, or
   comparison family in the same color across every panel and figure.
 - Prefer colorblind-friendly, low-saturation colors.
@@ -46,6 +50,9 @@ figures. Prefer reproducible plotting from data over manual visual editing.
 - Show 95% CI as horizontal bars, vertical error bars, ribbons, or shaded bands
   for point estimates, trends, smooth curves, or effect-size summaries when
   intervals are available. Do not fabricate intervals from point estimates.
+- If the source table has `estimate`, `ci_lower`, and `ci_upper` fields, compute
+  uncertainty marks directly from those fields and keep them attached to the
+  plotted estimate.
 - Remove unexplained arrows, prompt-like labels, decorative tips, process
   labels, and any text that describes the workflow rather than the scientific
   object.

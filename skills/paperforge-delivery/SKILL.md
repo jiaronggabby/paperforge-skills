@@ -294,6 +294,13 @@ identity:
   modules: define one `PALETTE` dictionary, define method-specific color maps,
   set `matplotlib`/`seaborn` rcParams once, hide top/right spines by default,
   and save with a white facecolor.
+- Keep plotting scripts modular and auditable: one shared style module or block
+  should define `PALETTE`, `apply_paper_style()`, `style_axes()`, `bar_kwargs()`,
+  `err_kwargs()`, and `add_panel_label()` equivalents. Individual figures should
+  import or reuse those helpers instead of redefining colors and axis settings.
+- When source tables provide `estimate`, `ci_lower`, and `ci_upper` columns,
+  compute error bars or CI bands directly from those columns. Do not convert CI
+  values into decorative annotations detached from the plotted estimate.
 
 ## Low-AI prose rules
 
