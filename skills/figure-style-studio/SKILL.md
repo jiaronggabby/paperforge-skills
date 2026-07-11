@@ -30,12 +30,27 @@ figures. Prefer reproducible plotting from data over manual visual editing.
 ## Style rules
 
 - Use one main palette across the paper or slide deck.
+- Keep the same method, model, case type, dataset, route, severity level, or
+  comparison family in the same color across every panel and figure.
 - Prefer colorblind-friendly, low-saturation colors.
 - Use direct labels when they reduce legend lookup.
 - Keep font sizes readable at the final publication size.
-- Remove chart titles when the manuscript caption already names the figure.
+- Remove chart titles and descriptive panel titles for manuscript figures; the
+  caption should explain the figure. Keep only panel letters, axis labels,
+  legends, scale bars, direct data labels, and necessary group labels.
 - Use thin, quiet grid lines and avoid heavy borders.
-- Export PNG at 300-600 dpi for raster use; export PDF/SVG when vector output is
-  needed.
+- Use black or very dark neutral outlines for bars and other filled marks when
+  that improves legibility.
+- Show error bars on bar charts when standard error, standard deviation, or
+  confidence intervals are available.
+- Show 95% CI as horizontal bars, vertical error bars, ribbons, or shaded bands
+  for point estimates, trends, smooth curves, or effect-size summaries when
+  intervals are available. Do not fabricate intervals from point estimates.
+- Remove unexplained arrows, prompt-like labels, decorative tips, process
+  labels, and any text that describes the workflow rather than the scientific
+  object.
+- Export PNG by default, preferably 600 dpi for paper plots. Export PDF/SVG only
+  when the user explicitly requests vector output or a venue/template requires
+  it.
 
 Read `references/palette.md` for default palettes and matplotlib settings.

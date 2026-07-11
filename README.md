@@ -20,7 +20,8 @@ turns those recurring problems into reusable agent skills.
 
 ## What is included
 
-- `paperforge-delivery`: end-to-end paper/PPT/figure/submission delivery
+- `paperforge-delivery`: end-to-end paper/PPT/Word/LaTeX/figure/submission
+  delivery with safe Office handling and clean output folders
 - `paper-polish`: academic prose revision with claim discipline
 - `bilingual-anti-ai-writing`: Chinese-English anti-AI writing skill/checklist for grants, papers, cover letters, and reports
 - `figure-style-studio`: publication-style plotting and color guidance
@@ -41,8 +42,8 @@ python examples/make_demo_figure.py
 
 The demo reads `examples/demo_results.csv` and writes
 `examples/demo_figure.png`. It shows the default PaperForge plotting style:
-strong but restrained colors, readable labels, light grid lines, and
-publication-oriented spacing.
+method-consistent muted colors, black outlines, bar error bars, horizontal 95%
+CI bands, readable labels, light grid lines, and no plot titles.
 
 ## Install
 

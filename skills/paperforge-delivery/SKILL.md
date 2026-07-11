@@ -204,6 +204,10 @@ figures, review comments, and explicit instructions.
   arrows, prompt-like labels, decorative tips, "published-style" labels,
   "repair analysis" labels, and any text that describes the workflow rather
   than the scientific object.
+- Paper figures should not carry plot titles, figure titles, or descriptive
+  panel titles by default. Let the manuscript caption explain the figure. Keep
+  only panel letters, axis labels, tick labels, legends, scale bars, direct data
+  labels, and necessary group labels.
 - Use arrows only when they encode a necessary data flow, causal flow, or model
   path. Keep those arrows sparse, neutral, and caption-supported.
 - If the user asks for patient-level wording, remove duplicate-aware wording
@@ -216,8 +220,16 @@ figures, review comments, and explicit instructions.
   and slide figure unless the user explicitly changes the mapping.
 - Use black or very dark neutral error bars and outlines when the palette is
   light or muted, so uncertainty marks stay legible.
+- For bar charts, use black or very dark neutral outlines by default and show
+  error bars when standard error, standard deviation, or confidence intervals
+  are available. Do not omit uncertainty marks from a bar chart when the source
+  table provides them.
 - If the user requests confidence bands, use bands consistently instead of
   switching between bands and bars without reason.
+- For point estimates, trends, smooth curves, or effect-size summaries, show
+  95% CI as horizontal CI bars, vertical error bars, ribbons, or shaded bands
+  when those intervals are available. Do not fabricate CI bands from point
+  estimates alone.
 - Avoid cluttered legends, too many endpoint labels in one panel, and mixed
   visual metaphors in the same figure.
 - For workflow schematics, ensure the implementation shown in the figure matches
@@ -226,6 +238,9 @@ figures, review comments, and explicit instructions.
 
 ## Word and layout rules
 
+- Preserve the journal template, page size, margins, section order, heading
+  hierarchy, paragraph styles, table style, caption style, reference style, and
+  supplementary structure unless the user explicitly asks for a redesign.
 - Preserve embedded figures when editing `.docx` manuscripts. After any major
   Word edit, verify that the main document still contains the expected number of
   figures and that captions are followed by image objects, not captions alone.
@@ -235,13 +250,24 @@ figures, review comments, and explicit instructions.
 - If supplementary figures or tables become substantial, place them in a
   separate supplementary Word document that matches the main manuscript layout.
 - Keep the main manuscript visually clean: black body text, stable heading
-  hierarchy, no accidental blue font artifacts, and no orphaned appendix
-  material left after references.
+  hierarchy, consistent numbering, no accidental blue font artifacts, no hidden
+  prompt/workflow notes, no duplicated headings, no empty sections, and no
+  orphaned appendix material left after references.
+- Do not use scripted tracked changes or comments unless they are explicitly
+  requested and can be validated in Word. If tracked changes/comments are
+  required, use proper Word mechanisms and verify author/comment metadata.
+- If the source `.docx` is locked or currently open, save a new version rather
+  than force-replacing it.
 - Ensure every main-paper figure and table is mentioned naturally in the body.
   Supplementary items can be cited once with a short directional sentence.
 - If the user wants a journal-ready Word deliverable, verify figure order, table
   order, caption numbering, and that no panel references or labels are stale
   after rearrangement.
+- When creating Word files from scratch and no journal template is available,
+  use neutral manuscript formatting: black body text, readable serif or journal
+  template font, consistent heading levels, standard margins, normal line
+  spacing for the target venue, and captions placed immediately before or after
+  the referenced object according to the target style.
 
 ## Default visual taste
 
@@ -260,7 +286,8 @@ identity:
 - Avoid high-saturation red/green, rainbow colormaps, decorative gradients,
   heavy shadows, cramped labels, and text over busy images.
 - For plots: white background, readable axis labels, light grid, consistent
-  decimals, no chart title if the manuscript caption already names the figure.
+  decimals, and no chart title unless the user explicitly asks for one or the
+  figure is a slide rather than a manuscript figure.
 - For slides: use the same palette but larger type, fewer labels, more
   whitespace, and one dominant proof object per slide.
 - For reusable plotting code, follow the same pattern as stable project plotting
