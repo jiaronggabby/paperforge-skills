@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "name": "",
+    "canonical_root": "",
+    "repository_root": "",
+    "branch": "",
+    "commit": "",
+    "remote": ""
+  },
+  "paper": {
+    "target_venue": "",
+    "article_type": "",
+    "primary_question": "",
+    "prediction_or_decision_unit": "",
+    "information_boundary": "",
+    "primary_claim": "",
+    "claim_ceiling": "",
+    "primary_comparison": "",
+    "primary_outcomes": []
+  },
+  "protocol": {
+    "source": "",
+    "data_version_or_hash": "",
+    "config_fingerprint": "",
+    "split_manifest": "",
+    "locked_test_status": "closed",
+    "declared_runs": [],
+    "realized_runs": []
+  },
+  "evidence": {
+    "canonical_results": "",
+    "statistics_record": "",
+    "claim_map": "",
+    "negative_results_record": "",
+    "literature_benchmark": "",
+    "literature_benchmark_shortfall": ""
+  },
+  "figures": {
+    "registry": "",
+    "source_directory": "",
+    "final_directory": ""
+  },
+  "delivery": {
+    "submission_package": "",
+    "code_package": "",
+    "provenance_record": "",
+    "final_artifacts": []
+  },
+  "gates": {
+    "protocol_code_alignment": "pending",
+    "split_and_leakage": "pending",
+    "formal_matrix": "pending",
+    "statistics": "pending",
+    "claim_traceability": "pending",
+    "matched_20_papers": "pending",
+    "figure_visual_review": "pending",
+    "reporting_compliance": "pending",
+    "render_and_package": "pending"
+  },
+  "truth_only_metadata": {
+    "authors": "unknown",
+    "affiliations": "unknown",
+    "ethics_and_consent": "unknown",
+    "funding": "unknown",
+    "conflicts": "unknown",
+    "data_permissions": "unknown",
+    "ai_use_disclosure": "unknown"
+  }
+}

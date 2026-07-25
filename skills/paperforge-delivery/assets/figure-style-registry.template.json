@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "palette_version": "paperforge-muted-v1",
+  "surface": "manuscript",
+  "neutrals": {
+    "background": "#FFFFFF",
+    "text": "#2F3437",
+    "grid": "#D9DEE7",
+    "reference": "#7A828A",
+    "error_bar": "#2F3437",
+    "missing": "#B8BEC6"
+  },
+  "categorical_tokens": {
+    "blue": "#4C78A8",
+    "teal": "#5AA6A6",
+    "sage": "#7A9E7E",
+    "gold": "#D8A657",
+    "coral": "#D98373",
+    "slate": "#8A95A5",
+    "purple": "#8E7CC3"
+  },
+  "semantic_roles": {
+    "baseline": "#8A95A5",
+    "primary_method": "#4C78A8",
+    "secondary_method": "#8E7CC3",
+    "ablation": "#5AA6A6",
+    "supporting_group": "#7A9E7E",
+    "warning_or_adverse": "#D98373",
+    "highlight": "#D8A657"
+  },
+  "fixed_entities": {},
+  "encodings": {
+    "color": "method_or_single_declared_role",
+    "marker": "dataset_or_cohort",
+    "line_style": "setting_or_horizon",
+    "lightness": "ordered_severity",
+    "uncertainty": "charcoal_or_same_hue_low_alpha"
+  },
+  "export": {
+    "vector_master": true,
+    "png_dpi": 600,
+    "white_background": true,
+    "final_size_visual_review": "pending"
+  }
+}

@@ -18,6 +18,7 @@ deliverables/
 *.xlsx
 *.csv
 !examples/demo_results.csv
+!skills/paperforge-delivery/assets/matched-paper-benchmark.template.csv
 *.zip
 
 # Secrets and local config

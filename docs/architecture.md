@@ -1,48 +1,69 @@
 # Architecture
 
-PaperForge is a collection of small, composable Codex skills rather than a
-single monolithic agent.
+PaperForge has one controller and a set of narrow specialists.
 
-## Skill layers
+## Controller
 
-1. `paperforge-delivery`
-   - Coordinates end-to-end paper, figure, deck, and submission work.
-   - Routes tasks to narrower skills when a request is more specific.
-
-2. Specialist skills
-   - `paper-polish` handles prose and claim discipline.
-   - `figure-style-studio` handles chart choice, palettes, and reproducible
-     figure generation.
-   - `results-auditor` checks tables, metrics, splits, and claim consistency.
-   - `reviewer-response` converts peer-review comments into revision plans and
-     response letters.
-   - `paper-self-review` performs pre-submission checks.
-   - `evidence-ranker` prioritizes citations by evidence strength.
-   - `research-ideation` turns topics and constraints into testable directions.
-
-3. Utility scripts
-   - `scripts/validate_skills.py` checks skill metadata and folder names.
-   - `scripts/install_skills.py` copies selected skills into a local Codex
-     skills directory.
-
-## Data flow
+`paperforge-delivery` owns the end-to-end contract:
 
 ```text
-User files / notes / tables / reviews
-              |
-              v
-      PaperForge skill selection
-              |
-              v
-Evidence map, style rules, and task-specific checks
-              |
-              v
-Revised prose, figures, audit notes, response letters, or delivery folders
+live project evidence
+        |
+        v
+canonical paper contract
+        |
+        +--> experiment and claim gates
+        +--> 20-paper matched benchmark
+        +--> one falsifiable story
+        +--> semantic figure/color registry
+        +--> manuscript and layout
+        +--> submission + code packages
+        |
+        v
+verified delivery audit
 ```
 
-## Design choices
+Its `SKILL.md` remains a concise controller. Detailed, conditionally loaded
+rules live in:
 
-- Keep each skill readable enough to inspect quickly.
-- Avoid private memory, project-specific names, and hard-coded local paths.
-- Prefer verifiable evidence over polished narrative.
-- Use scripts only where repeatability matters.
+- `references/evidence-experiment-gates.md`
+- `references/writing-story-contract.md`
+- `references/figure-color-chart-contract.md`
+- `references/matched-paper-review.md`
+- `references/document-layout-delivery.md`
+- `references/domain-overrides.md`
+
+Machine-readable starter assets prevent repeated free-form setup:
+
+- `assets/paper-contract.template.json`
+- `assets/figure-style-registry.template.json`
+- `assets/matched-paper-benchmark.template.csv`
+
+`scripts/validate_delivery.py` validates the contract, project confinement,
+evidence paths, matched-paper count, final artifacts, hashes, and hard gates.
+
+## Specialists
+
+The controller routes isolated work to:
+
+- `results-auditor` for result and claim consistency;
+- `evidence-ranker` for evidence strength;
+- `paper-polish` and `bilingual-anti-ai-writing` for bounded prose revision;
+- `figure-style-studio` for focused figure work;
+- `paper-self-review` for a final checklist;
+- `reviewer-response` for rebuttals;
+- `research-ideation` for literature-grounded directions.
+
+Specialists add task-specific tests but do not create competing project
+contracts, palettes, evidence maps, or delivery manifests.
+
+## Project hygiene
+
+Use one canonical checkout. Keep version history in Git, failed/temporary work
+under ignored project-local directories, and formal deliverables in one
+versioned bundle. Build the code package from the verified canonical commit;
+never maintain a copied editable repository as `v2`, `final`, or `latest`.
+
+Do not create one Markdown report per generated artifact. Keep one contract, one
+claim/evidence map, one matched-paper table, one figure registry, and one final
+audit record per delivery cycle.

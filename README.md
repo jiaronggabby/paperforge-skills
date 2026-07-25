@@ -18,10 +18,20 @@ from evidence, figures use inconsistent colors, reviewer replies lose focus,
 and final submission folders collect stale drafts and scratch files. PaperForge
 turns those recurring problems into reusable agent skills.
 
+## Unified entry point
+
+Use `paperforge-delivery` for combined or end-to-end work. It now freezes one
+paper contract, audits experiment evidence, calibrates the story against 20
+matched published papers, enforces a semantic color registry, routes specialist
+skills, and builds separate submission and reproducible-code packages without
+duplicating repositories or scattering intermediate reports.
+
+Use the specialist skills directly only for isolated tasks.
+
 ## What is included
 
-- `paperforge-delivery`: end-to-end paper/PPT/Word/LaTeX/figure/submission
-  delivery with safe Office handling and clean output folders
+- `paperforge-delivery`: evidence-to-paper controller, figure/color contract,
+  matched-paper review, clean package layout, and deterministic delivery audit
 - `paper-polish`: academic prose revision with claim discipline
 - `bilingual-anti-ai-writing`: Chinese-English anti-AI writing skill/checklist for grants, papers, cover letters, and reports
 - `figure-style-studio`: publication-style plotting and color guidance
@@ -63,6 +73,8 @@ python scripts/install_skills.py --source skills --target "$env:USERPROFILE\\.co
 
 ```powershell
 python scripts/validate_skills.py skills
+python skills/paperforge-delivery/scripts/validate_delivery.py `
+  skills/paperforge-delivery/assets/paper-contract.template.json --template
 ```
 
 ## Example prompts

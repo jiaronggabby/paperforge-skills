@@ -1,0 +1,6 @@
+interface:
+  display_name: "PaperForge Delivery"
+  short_description: "Coordinate evidence-safe paper delivery"
+  default_prompt: "Use $paperforge-delivery to turn the live project evidence into a verified manuscript, figure set, code package, and clean submission bundle."
+policy:
+  allow_implicit_invocation: true

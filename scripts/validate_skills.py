@@ -7,6 +7,13 @@ from pathlib import Path
 
 
 NAME_RE = re.compile(r"^[a-z0-9-]+$")
+LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+FORBIDDEN_AUXILIARY = {
+    "README.md",
+    "CHANGELOG.md",
+    "INSTALLATION_GUIDE.md",
+    "QUICK_REFERENCE.md",
+}
 
 
 def parse_frontmatter(text: str) -> dict[str, str]:
@@ -47,6 +54,51 @@ def validate_skill(path: Path) -> list[str]:
         errors.append(f"{skill_md}: missing description")
     elif len(description) < 80:
         errors.append(f"{skill_md}: description is too short for reliable triggering")
+    extra_keys = set(meta) - {"name", "description"}
+    if extra_keys:
+        errors.append(f"{skill_md}: unsupported frontmatter keys {sorted(extra_keys)}")
+    if len(text.splitlines()) > 500:
+        errors.append(f"{skill_md}: exceeds the 500-line core-skill limit")
+
+    for candidate in path.rglob("*"):
+        if candidate.is_file() and candidate.name in FORBIDDEN_AUXILIARY:
+            errors.append(f"{candidate}: auxiliary documentation is not allowed inside a skill")
+        if candidate.is_dir() and not any(candidate.iterdir()):
+            errors.append(f"{candidate}: empty resource directory")
+
+    for markdown in path.rglob("*.md"):
+        markdown_text = markdown.read_text(encoding="utf-8")
+        headings: set[str] = set()
+        for line in markdown_text.splitlines():
+            if line.startswith("#"):
+                heading = line.lstrip("#").strip().lower()
+                if heading in headings:
+                    errors.append(f"{markdown}: duplicate heading {heading!r}")
+                headings.add(heading)
+        for target in LINK_RE.findall(markdown_text):
+            if target.startswith(("http://", "https://", "#", "mailto:")):
+                continue
+            relative = target.split("#", 1)[0]
+            resolved = (markdown.parent / relative).resolve()
+            try:
+                resolved.relative_to(path.resolve())
+            except ValueError:
+                errors.append(f"{markdown}: link escapes skill folder: {target}")
+                continue
+            if not resolved.exists():
+                errors.append(f"{markdown}: missing linked resource: {target}")
+
+    if path.name == "paperforge-delivery":
+        agent_yaml = path / "agents" / "openai.yaml"
+        if not agent_yaml.exists():
+            errors.append(f"{agent_yaml}: missing controller UI metadata")
+        else:
+            agent_text = agent_yaml.read_text(encoding="utf-8")
+            for field in ("display_name:", "short_description:", "default_prompt:"):
+                if field not in agent_text:
+                    errors.append(f"{agent_yaml}: missing {field[:-1]}")
+            if "$paperforge-delivery" not in agent_text:
+                errors.append(f"{agent_yaml}: default_prompt must mention $paperforge-delivery")
     return errors
 
 
