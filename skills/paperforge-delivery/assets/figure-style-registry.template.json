@@ -36,6 +36,25 @@
     "lightness": "ordered_severity",
     "uncertainty": "charcoal_or_same_hue_low_alpha"
   },
+  "panel_labels": {
+    "anchor": "axes_upper_left",
+    "offset_points": [-8, 4],
+    "horizontal_alignment": "right",
+    "vertical_alignment": "bottom",
+    "minimum_left_gap_points": 4,
+    "maximum_top_gap_points": 10,
+    "forbid_subplot_title": true,
+    "rendered_geometry_audit": "required"
+  },
+  "heatmap_layout": {
+    "data_axes_center_tolerance_fraction": 0.02,
+    "comparable_axes_width_tolerance_fraction": 0.01,
+    "symmetric_outer_margins": true,
+    "shared_row_labels": true,
+    "colorbar_must_not_shrink_axes_unequally": true,
+    "word_fixed_canvas": true,
+    "word_zero_crop": true
+  },
   "export": {
     "vector_master": true,
     "png_dpi": 600,

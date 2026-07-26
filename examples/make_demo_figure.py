@@ -106,17 +106,46 @@ def style_axes(ax: plt.Axes, grid_axis: str = "y") -> None:
 
 
 def add_panel_label(ax: plt.Axes, label: str) -> None:
-    ax.text(
-        -0.14,
-        1.07,
+    artist = ax.annotate(
         label,
-        transform=ax.transAxes,
-        ha="left",
+        xy=(0.0, 1.0),
+        xycoords="axes fraction",
+        xytext=(-8.0, 4.0),
+        textcoords="offset points",
+        ha="right",
         va="bottom",
         fontsize=10.5,
         fontweight="bold",
         clip_on=False,
     )
+    artist.set_gid("panel-label")
+
+
+def audit_panel_labels(fig: plt.Figure, axes: list[plt.Axes]) -> None:
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    gap_px = 4.0 * fig.dpi / 72.0
+    min_above_px = 1.0 * fig.dpi / 72.0
+    max_above_px = 10.0 * fig.dpi / 72.0
+
+    for ax in axes:
+        labels = [text for text in ax.texts if text.get_gid() == "panel-label"]
+        if len(labels) != 1:
+            raise RuntimeError("Each panel must contain exactly one panel label.")
+        label_box = labels[0].get_window_extent(renderer)
+        axes_box = ax.get_window_extent(renderer)
+        if label_box.x1 > axes_box.x0 - gap_px:
+            raise RuntimeError("Panel label is not fully left of the y-axis.")
+        vertical_gap = label_box.y0 - axes_box.y1
+        if not min_above_px <= vertical_gap <= max_above_px:
+            raise RuntimeError("Panel label is not aligned with the upper-left margin.")
+        if (
+            label_box.x0 < fig.bbox.x0
+            or label_box.y0 < fig.bbox.y0
+            or label_box.x1 > fig.bbox.x1
+            or label_box.y1 > fig.bbox.y1
+        ):
+            raise RuntimeError("Panel label is clipped by the figure canvas.")
 
 
 def asymmetric_error(point: float, low: float, high: float) -> np.ndarray:
@@ -371,6 +400,7 @@ def main() -> int:
         columnspacing=1.35,
     )
     fig.subplots_adjust(left=0.105, right=0.965, bottom=0.105, top=0.90)
+    audit_panel_labels(fig, list(axes.flat))
     fig.savefig(OUT, bbox_inches="tight", pad_inches=0.04)
     print(OUT)
     return 0

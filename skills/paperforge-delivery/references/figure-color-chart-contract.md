@@ -311,10 +311,92 @@ only:
 Use the manuscript caption for context. Slides may use a concise action title,
 but the embedded result figure keeps the same semantic mapping.
 
-Place panel letters in reserved outer margins, not above a bar, point, tick, or
-error bar. Keep legends outside the data region whenever overlap is possible.
-Avoid unexplained arrows, decorative callouts, workflow tips, and prompt-like
-labels.
+### Panel-letter placement hard contract
+
+Panel letters belong in the blank margin immediately outside the upper-left
+corner of each axes. They must be fully left of the y-axis line, not centered
+above a subplot and not positioned over data. Use one shared helper:
+
+```python
+def add_panel_label(ax, label):
+    artist = ax.annotate(
+        label,
+        xy=(0.0, 1.0),
+        xycoords="axes fraction",
+        xytext=(-8.0, 4.0),
+        textcoords="offset points",
+        ha="right",
+        va="bottom",
+        fontweight="bold",
+        clip_on=False,
+    )
+    artist.set_gid("panel-label")
+```
+
+Do not use `ax.set_title("A")`, `fig.text(...)`, data coordinates, manually
+different x/y values per panel, or a label placed at the horizontal center of
+an axes. Reserve enough top and left canvas margin before saving.
+
+After final layout, draw the canvas and inspect every panel-label bounding box.
+Require exactly one label per panel, its right edge at least `4 pt` left of the
+axes left edge, its bottom edge `1–10 pt` above the axes top edge, and its full
+bounding box inside the figure canvas. Any failure blocks delivery.
+
+### Heatmap geometry and Word-centering hard contract
+
+Heatmaps must remain stable for different matrix shapes and label lengths:
+
+- use sequential color for nonnegative magnitude and a perceptually uniform
+  diverging scale centered at the declared neutral value for signed effects;
+- use one common normalization across directly comparable panels;
+- calculate figure size from final journal width and matrix aspect; use square
+  cells when row and column units are comparable;
+- show shared row labels only on the first panel, right-align them close to the
+  grid, and wrap or consistently abbreviate exceptionally long labels;
+- give every comparable heatmap data axes the same pixel width and height;
+- use one shared colorbar or equal inset colorbars anchored to the data axes;
+  ordinary per-panel colorbars that shrink axes unequally are forbidden;
+- reserve symmetric outer canvas margins. If row labels require `L` pixels on
+  the left, reserve at least the same `L` pixels on the right;
+- for Word, export a fixed white canvas with `bbox_inches=None` and
+  `pad_inches=0`; asymmetric `bbox_inches="tight"` must not determine centering;
+- insert the image inline in a centered Word paragraph with zero crop and the
+  intended physical width.
+
+After rendering, compute the union of heatmap **data-axes** bounding boxes,
+excluding tick labels and colorbars. Require:
+
+```text
+abs(data_axes_center_x - figure_center_x) / figure_width <= 0.02
+(max_axes_width - min_axes_width) / mean_axes_width <= 0.01
+```
+
+Use an executable audit in every heatmap script:
+
+```python
+def audit_heatmap_geometry(fig, data_axes):
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    boxes = [ax.get_window_extent(renderer) for ax in data_axes]
+    widths = [box.width for box in boxes]
+    union_left = min(box.x0 for box in boxes)
+    union_right = max(box.x1 for box in boxes)
+    center_error = abs(
+        (union_left + union_right) / 2 - fig.bbox.width / 2
+    ) / fig.bbox.width
+    width_error = (max(widths) - min(widths)) / (sum(widths) / len(widths))
+    if center_error > 0.02:
+        raise RuntimeError("Heatmap data axes are not centered on the canvas.")
+    if width_error > 0.01:
+        raise RuntimeError("Comparable heatmap axes do not have equal widths.")
+```
+
+All data axes and colorbars must remain inside the canvas without clipping. A
+Word paragraph marked centered does not waive a failed data-axes centering
+check.
+
+Keep legends outside the data region whenever overlap is possible. Avoid
+unexplained arrows, decorative callouts, workflow tips, and prompt-like labels.
 
 ## Export contract
 
@@ -371,6 +453,10 @@ Mark every item `PASS`, `FAIL`, or `WAIVED` with a reason.
 - text is legible at final size;
 - no clipping, overlap, collision, cropped colorbar, or invisible error cap;
 - panel proportions, spacing, and alignment are consistent.
+- every panel letter is fully left of its y-axis with the same point offset;
+- heatmap data-axes center error is at most 2% of figure width;
+- comparable heatmap panel-width variation is at most 1%;
+- Word heatmaps use a fixed symmetric canvas with zero image crop.
 
 ### Files and embedding
 

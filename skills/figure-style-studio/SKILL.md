@@ -53,6 +53,18 @@ figures. Prefer reproducible plotting from data over manual visual editing.
 - If the source table has `estimate`, `ci_lower`, and `ci_upper` fields, compute
   uncertainty marks directly from those fields and keep them attached to the
   plotted estimate.
+- Put panel labels immediately outside the upper-left corner of each axes,
+  fully left of the y-axis. Anchor at `(0, 1)` in axes-fraction coordinates and
+  apply a fixed `(-8 pt, +4 pt)` offset with right/bottom alignment. Never use
+  `set_title`, data coordinates, or figure-level absolute coordinates for panel
+  letters. Render and fail the figure if a label is not left of the axes,
+  differs in offset across panels, or is clipped.
+- For multi-panel heatmaps, use equal-width data axes, shared row labels only on
+  the first panel, and inset/shared colorbars that do not shrink panels
+  unequally. Center the union of heatmap data axes on the fixed figure canvas
+  within 2% of figure width and require panel-width variation below 1%. If long
+  row labels need extra left margin, reserve the same margin on the right. Do
+  not rely on asymmetric tight cropping for Word centering.
 - Remove unexplained arrows, prompt-like labels, decorative tips, process
   labels, and any text that describes the workflow rather than the scientific
   object.

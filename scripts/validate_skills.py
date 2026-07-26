@@ -99,6 +99,20 @@ def validate_skill(path: Path) -> list[str]:
                     errors.append(f"{agent_yaml}: missing {field[:-1]}")
             if "$paperforge-delivery" not in agent_text:
                 errors.append(f"{agent_yaml}: default_prompt must mention $paperforge-delivery")
+        figure_contract = path / "references" / "figure-color-chart-contract.md"
+        if not figure_contract.exists():
+            errors.append(f"{figure_contract}: missing figure contract")
+        else:
+            contract_text = figure_contract.read_text(encoding="utf-8")
+            required_geometry_rules = {
+                'xytext=(-8.0, 4.0)': "fixed panel-label point offset",
+                "center_error > 0.02": "heatmap centering threshold",
+                "width_error > 0.01": "heatmap equal-width threshold",
+                'bbox_inches=None': "fixed Word canvas export",
+            }
+            for token, rule in required_geometry_rules.items():
+                if token not in contract_text:
+                    errors.append(f"{figure_contract}: missing {rule}")
     return errors
 
 
