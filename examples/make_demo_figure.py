@@ -5,8 +5,8 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import LinearSegmentedColormap, TwoSlopeNorm
 from matplotlib.lines import Line2D
-from matplotlib.patches import Rectangle
 
 
 ROOT = Path(__file__).resolve().parent
@@ -14,20 +14,32 @@ DATA = ROOT / "demo_results.csv"
 OUT = ROOT / "demo_figure.png"
 
 PALETTE = {
+    "background": "#FFFFFF",
     "text": "#2F3437",
-    "muted": "#6B7280",
     "grid": "#D9DEE7",
-    "rule": "#111827",
-    "white": "#FFFFFF",
+    "reference": "#7A828A",
+    "error": "#2F3437",
+    "missing": "#B8BEC6",
     "blue": "#4C78A8",
     "teal": "#5AA6A6",
+    "purple": "#8E7CC3",
     "slate": "#8A95A5",
+    "coral": "#D98373",
+    "neutral": "#F7F8FA",
 }
 
+METHOD_ORDER = ["Baseline", "Prompt-only", "Audit-only", "PaperForge"]
 METHOD_COLORS = {
-    "Baseline": PALETTE["blue"],
-    "Prompt-only": PALETTE["slate"],
-    "PaperForge": PALETTE["teal"],
+    "Baseline": PALETTE["slate"],
+    "Prompt-only": PALETTE["purple"],
+    "Audit-only": PALETTE["teal"],
+    "PaperForge": PALETTE["blue"],
+}
+METHOD_MARKERS = {
+    "Baseline": "o",
+    "Prompt-only": "s",
+    "Audit-only": "^",
+    "PaperForge": "D",
 }
 
 
@@ -36,272 +48,325 @@ def read_rows() -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
-def values(rows: list[dict[str, str]], column: str) -> list[float]:
-    return [float(row[column]) for row in rows]
-
-
-def ci_yerr(point: list[float], low: list[float], high: list[float]) -> np.ndarray:
-    return np.array([[p - lo for p, lo in zip(point, low)], [hi - p for p, hi in zip(point, high)]])
+def index_rows(rows: list[dict[str, str]]) -> dict[tuple[str, int], dict[str, float]]:
+    indexed: dict[tuple[str, int], dict[str, float]] = {}
+    numeric = (
+        "accuracy",
+        "accuracy_ci_low",
+        "accuracy_ci_high",
+        "f1",
+        "f1_ci_low",
+        "f1_ci_high",
+    )
+    for row in rows:
+        indexed[(row["method"], int(row["horizon_h"]))] = {
+            key: float(row[key]) for key in numeric
+        }
+    return indexed
 
 
 def apply_paper_style() -> None:
     plt.rcParams.update(
         {
-            "figure.dpi": 150,
+            "figure.dpi": 160,
             "savefig.dpi": 600,
             "font.family": "DejaVu Sans",
-            "font.size": 8.5,
-            "axes.titlesize": 10,
-            "axes.labelsize": 8.5,
-            "xtick.labelsize": 7.6,
-            "ytick.labelsize": 7.6,
-            "legend.fontsize": 8,
-            "axes.edgecolor": PALETTE["rule"],
+            "font.size": 8.4,
+            "axes.labelsize": 8.6,
+            "xtick.labelsize": 7.5,
+            "ytick.labelsize": 7.5,
+            "legend.fontsize": 7.8,
+            "axes.edgecolor": PALETTE["text"],
             "axes.labelcolor": PALETTE["text"],
             "xtick.color": PALETTE["text"],
             "ytick.color": PALETTE["text"],
             "text.color": PALETTE["text"],
-            "grid.color": PALETTE["grid"],
-            "grid.linewidth": 0.55,
-            "figure.facecolor": PALETTE["white"],
-            "savefig.facecolor": PALETTE["white"],
-            "savefig.edgecolor": PALETTE["white"],
+            "figure.facecolor": PALETTE["background"],
+            "savefig.facecolor": PALETTE["background"],
+            "savefig.edgecolor": PALETTE["background"],
         }
     )
 
 
-def style_panel(ax: plt.Axes, grid_axis: str = "y") -> None:
-    ax.set_facecolor(PALETTE["white"])
-    ax.grid(axis=grid_axis, color=PALETTE["grid"], linewidth=0.55)
+def style_axes(ax: plt.Axes, grid_axis: str = "y") -> None:
+    ax.set_facecolor(PALETTE["background"])
+    ax.grid(
+        axis=grid_axis,
+        color=PALETTE["grid"],
+        linewidth=0.55,
+        alpha=0.9,
+    )
     ax.set_axisbelow(True)
-    for spine in ax.spines.values():
-        spine.set_visible(True)
-        spine.set_color(PALETTE["rule"])
-        spine.set_linewidth(1.0)
-    ax.tick_params(length=3, width=0.8, color=PALETTE["rule"])
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    for name in ("left", "bottom"):
+        ax.spines[name].set_color(PALETTE["text"])
+        ax.spines[name].set_linewidth(0.8)
+    ax.tick_params(length=3, width=0.7, color=PALETTE["text"])
 
 
 def add_panel_label(ax: plt.Axes, label: str) -> None:
     ax.text(
-        -0.07,
+        -0.14,
         1.07,
         label,
         transform=ax.transAxes,
         ha="left",
         va="bottom",
-        fontsize=11,
+        fontsize=10.5,
         fontweight="bold",
+        clip_on=False,
     )
 
 
-def draw_bar_panel(
-    ax: plt.Axes,
-    methods: list[str],
-    accuracy: list[float],
-    accuracy_low: list[float],
-    accuracy_high: list[float],
-    f1: list[float],
-    f1_low: list[float],
-    f1_high: list[float],
-) -> None:
-    metric_names = ["Accuracy", "F1"]
-    x = np.arange(len(metric_names))
-    width = 0.22
-    offsets = np.linspace(-width, width, len(methods))
-    metric_points = [accuracy, f1]
-    metric_low = [accuracy_low, f1_low]
-    metric_high = [accuracy_high, f1_high]
+def asymmetric_error(point: float, low: float, high: float) -> np.ndarray:
+    return np.array([[point - low], [high - point]])
 
-    for method_index, (method, offset) in enumerate(zip(methods, offsets)):
-        points = [metric_points[i][method_index] for i in range(len(metric_names))]
-        lows = [metric_low[i][method_index] for i in range(len(metric_names))]
-        highs = [metric_high[i][method_index] for i in range(len(metric_names))]
-        yerr = ci_yerr(points, lows, highs)
-        bars = ax.bar(
+
+def draw_grouped_bars(
+    ax: plt.Axes,
+    indexed: dict[tuple[str, int], dict[str, float]],
+    horizon: int,
+) -> None:
+    metrics = [("accuracy", "Accuracy"), ("f1", "F1")]
+    x = np.arange(len(metrics))
+    width = 0.17
+    offsets = (np.arange(len(METHOD_ORDER)) - 1.5) * width
+
+    for method, offset in zip(METHOD_ORDER, offsets):
+        row = indexed[(method, horizon)]
+        points = [row[key] for key, _ in metrics]
+        lows = [row[f"{key}_ci_low"] for key, _ in metrics]
+        highs = [row[f"{key}_ci_high"] for key, _ in metrics]
+        yerr = np.array(
+            [
+                [point - low for point, low in zip(points, lows)],
+                [high - point for point, high in zip(points, highs)],
+            ]
+        )
+        ax.bar(
             x + offset,
             points,
-            width=width,
+            width=width * 0.92,
             color=METHOD_COLORS[method],
-            edgecolor=PALETTE["rule"],
-            linewidth=0.8,
+            edgecolor=PALETTE["error"],
+            linewidth=0.7,
             yerr=yerr,
-            error_kw={"ecolor": PALETTE["rule"], "elinewidth": 0.8, "capsize": 2.4, "capthick": 0.8},
+            error_kw={
+                "ecolor": PALETTE["error"],
+                "elinewidth": 0.75,
+                "capsize": 2.0,
+                "capthick": 0.75,
+            },
             zorder=3,
         )
-        for bar, value in zip(bars, points):
-            ax.text(
-                bar.get_x() + bar.get_width() / 2,
-                value + 0.007,
-                f"{value:.2f}",
-                ha="center",
-                va="bottom",
-                fontsize=6.8,
-                color=PALETTE["muted"],
-            )
 
     add_panel_label(ax, "a")
     ax.set_ylabel("Score")
-    ax.set_xticks(x, metric_names)
-    ax.set_ylim(0.70, 0.89)
-    ax.set_yticks([0.70, 0.75, 0.80, 0.85])
-    style_panel(ax)
+    ax.set_xticks(x, [label for _, label in metrics])
+    ax.set_ylim(0, 1.0)
+    ax.set_yticks([0.0, 0.25, 0.50, 0.75, 1.0])
+    style_axes(ax)
 
 
-def draw_ci_band_panel(
+def draw_horizon_lines(
     ax: plt.Axes,
-    methods: list[str],
-    calibration: list[float],
-    calibration_low: list[float],
-    calibration_high: list[float],
+    indexed: dict[tuple[str, int], dict[str, float]],
+    horizons: list[int],
 ) -> None:
+    x = np.asarray(horizons)
+    for method in METHOD_ORDER:
+        mean = np.array([indexed[(method, horizon)]["accuracy"] for horizon in horizons])
+        low = np.array(
+            [indexed[(method, horizon)]["accuracy_ci_low"] for horizon in horizons]
+        )
+        high = np.array(
+            [indexed[(method, horizon)]["accuracy_ci_high"] for horizon in horizons]
+        )
+        ax.fill_between(
+            x,
+            low,
+            high,
+            color=METHOD_COLORS[method],
+            alpha=0.13,
+            linewidth=0,
+            zorder=1,
+        )
+        ax.plot(
+            x,
+            mean,
+            color=METHOD_COLORS[method],
+            marker=METHOD_MARKERS[method],
+            markersize=4.0,
+            markeredgecolor=PALETTE["error"],
+            markeredgewidth=0.45,
+            linewidth=1.55,
+            zorder=3,
+        )
+
+    add_panel_label(ax, "b")
+    ax.set_xlabel("Forecast horizon (h)")
+    ax.set_ylabel("Accuracy")
+    ax.set_xticks(horizons)
+    ax.set_ylim(0.68, 0.88)
+    ax.set_yticks([0.70, 0.75, 0.80, 0.85])
+    style_axes(ax)
+
+
+def effect_interval(
+    indexed: dict[tuple[str, int], dict[str, float]],
+    method: str,
+    horizon: int,
+) -> tuple[float, float, float]:
+    baseline = indexed[("Baseline", horizon)]
+    candidate = indexed[(method, horizon)]
+    point = candidate["accuracy"] - baseline["accuracy"]
+    low = candidate["accuracy_ci_low"] - baseline["accuracy_ci_high"]
+    high = candidate["accuracy_ci_high"] - baseline["accuracy_ci_low"]
+    return point, low, high
+
+
+def draw_forest(
+    ax: plt.Axes,
+    indexed: dict[tuple[str, int], dict[str, float]],
+    horizon: int,
+) -> None:
+    methods = ["Prompt-only", "Audit-only", "PaperForge"]
     y = np.arange(len(methods))
-    for yi, method, point, low, high in zip(y, methods, calibration, calibration_low, calibration_high):
-        ax.hlines(yi, low, high, color=METHOD_COLORS[method], linewidth=7.5, alpha=0.42, zorder=2)
+    ax.axvline(0, color=PALETTE["reference"], linestyle="--", linewidth=0.9, zorder=1)
+
+    for yi, method in zip(y, methods):
+        point, low, high = effect_interval(indexed, method, horizon)
         ax.errorbar(
             point,
             yi,
-            xerr=np.array([[point - low], [high - point]]),
-            fmt="o",
+            xerr=asymmetric_error(point, low, high),
+            fmt=METHOD_MARKERS[method],
             markersize=5.4,
             markerfacecolor=METHOD_COLORS[method],
-            markeredgecolor=PALETTE["rule"],
-            markeredgewidth=0.7,
-            ecolor=PALETTE["rule"],
+            markeredgecolor=PALETTE["error"],
+            markeredgewidth=0.65,
+            ecolor=PALETTE["error"],
             elinewidth=0.85,
-            capsize=3,
+            capsize=2.8,
             capthick=0.85,
             zorder=3,
         )
-        ax.text(high + 0.002, yi, f"{point:.3f}", va="center", ha="left", fontsize=7.0, color=PALETTE["muted"])
-
-    add_panel_label(ax, "b")
-    ax.set_xlabel("Calibration error")
-    ax.set_yticks(y, methods)
-    ax.set_xlim(0.04, 0.108)
-    ax.set_xticks([0.05, 0.075, 0.10])
-    ax.invert_yaxis()
-    style_panel(ax, grid_axis="x")
-
-
-def draw_tradeoff_panel(
-    ax: plt.Axes,
-    methods: list[str],
-    accuracy: list[float],
-    accuracy_low: list[float],
-    accuracy_high: list[float],
-    calibration: list[float],
-    calibration_low: list[float],
-    calibration_high: list[float],
-) -> None:
-    for method, acc, acc_low, acc_high, cal, cal_low, cal_high in zip(
-        methods,
-        accuracy,
-        accuracy_low,
-        accuracy_high,
-        calibration,
-        calibration_low,
-        calibration_high,
-    ):
-        ax.errorbar(
-            acc,
-            cal,
-            xerr=np.array([[acc - acc_low], [acc_high - acc]]),
-            yerr=np.array([[cal - cal_low], [cal_high - cal]]),
-            fmt="o",
-            markersize=6.5,
-            markerfacecolor=METHOD_COLORS[method],
-            markeredgecolor=PALETTE["rule"],
-            markeredgewidth=0.8,
-            ecolor=PALETTE["rule"],
-            elinewidth=0.8,
-            capsize=2.8,
-            capthick=0.8,
-            zorder=3,
-        )
         ax.text(
-            acc + 0.003,
-            cal,
-            method,
+            high + 0.005,
+            yi,
+            f"{point:+.3f}",
             va="center",
             ha="left",
-            fontsize=7.2,
-            color=PALETTE["text"],
-            bbox={"facecolor": PALETTE["white"], "edgecolor": "none", "alpha": 0.86, "pad": 0.6},
+            fontsize=7.1,
         )
 
     add_panel_label(ax, "c")
-    ax.set_xlabel("Accuracy")
-    ax.set_ylabel("Calibration error")
-    ax.set_xlim(0.74, 0.88)
-    ax.set_ylim(0.04, 0.105)
-    ax.set_xticks([0.75, 0.80, 0.85])
-    ax.set_yticks([0.05, 0.075, 0.10])
-    style_panel(ax)
+    ax.set_xlabel(f"Accuracy difference vs baseline ({horizon} h)")
+    ax.set_yticks(y, methods)
+    ax.set_xlim(-0.04, 0.12)
+    ax.set_xticks([-0.04, 0.00, 0.04, 0.08, 0.12])
+    ax.invert_yaxis()
+    style_axes(ax, grid_axis="x")
+
+
+def draw_effect_heatmap(
+    ax: plt.Axes,
+    indexed: dict[tuple[str, int], dict[str, float]],
+    horizons: list[int],
+) -> None:
+    methods = ["Prompt-only", "Audit-only", "PaperForge"]
+    matrix = np.array(
+        [
+            [
+                indexed[(method, horizon)]["accuracy"]
+                - indexed[("Baseline", horizon)]["accuracy"]
+                for horizon in horizons
+            ]
+            for method in methods
+        ]
+    )
+    limit = max(abs(matrix.min()), abs(matrix.max()))
+    cmap = LinearSegmentedColormap.from_list(
+        "paperforge_effect",
+        [PALETTE["coral"], PALETTE["neutral"], PALETTE["blue"]],
+    )
+    image = ax.imshow(
+        matrix,
+        cmap=cmap,
+        norm=TwoSlopeNorm(vmin=-limit, vcenter=0.0, vmax=limit),
+        aspect="auto",
+    )
+
+    for row_index in range(matrix.shape[0]):
+        for col_index in range(matrix.shape[1]):
+            value = matrix[row_index, col_index]
+            text_color = PALETTE["background"] if abs(value) > limit * 0.62 else PALETTE["text"]
+            ax.text(
+                col_index,
+                row_index,
+                f"{value:+.3f}",
+                ha="center",
+                va="center",
+                fontsize=7.0,
+                color=text_color,
+            )
+
+    add_panel_label(ax, "d")
+    ax.set_xlabel("Forecast horizon (h)")
+    ax.set_xticks(np.arange(len(horizons)), horizons)
+    ax.set_yticks(np.arange(len(methods)), methods)
+    ax.tick_params(length=0)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+
+    colorbar = ax.figure.colorbar(image, ax=ax, fraction=0.045, pad=0.035)
+    colorbar.set_label("Accuracy difference vs baseline", fontsize=7.8)
+    colorbar.ax.tick_params(labelsize=7.0, length=2)
+    colorbar.outline.set_linewidth(0.6)
 
 
 def main() -> int:
-    rows = read_rows()
-    methods = [row["method"] for row in rows]
-    accuracy = values(rows, "accuracy")
-    accuracy_low = values(rows, "accuracy_ci_low")
-    accuracy_high = values(rows, "accuracy_ci_high")
-    f1 = values(rows, "f1")
-    f1_low = values(rows, "f1_ci_low")
-    f1_high = values(rows, "f1_ci_high")
-    calibration = values(rows, "calibration_error")
-    calibration_low = values(rows, "calibration_ci_low")
-    calibration_high = values(rows, "calibration_ci_high")
-
+    indexed = index_rows(read_rows())
+    horizons = sorted({horizon for _, horizon in indexed})
     apply_paper_style()
 
-    fig = plt.figure(figsize=(7.45, 4.55), facecolor=PALETTE["white"])
-    gs = fig.add_gridspec(
+    fig, axes = plt.subplots(
         2,
         2,
-        width_ratios=[1.15, 1.0],
-        height_ratios=[1.0, 0.93],
-        left=0.105,
-        right=0.965,
-        bottom=0.105,
-        top=0.84,
-        wspace=0.30,
-        hspace=0.50,
+        figsize=(7.4, 5.25),
+        gridspec_kw={"wspace": 0.38, "hspace": 0.48},
     )
-    ax_bar = fig.add_subplot(gs[0, 0])
-    ax_ci = fig.add_subplot(gs[0, 1])
-    ax_tradeoff = fig.add_subplot(gs[1, :])
-
-    draw_bar_panel(ax_bar, methods, accuracy, accuracy_low, accuracy_high, f1, f1_low, f1_high)
-    draw_ci_band_panel(ax_ci, methods, calibration, calibration_low, calibration_high)
-    draw_tradeoff_panel(ax_tradeoff, methods, accuracy, accuracy_low, accuracy_high, calibration, calibration_low, calibration_high)
+    draw_grouped_bars(axes[0, 0], indexed, horizon=24)
+    draw_horizon_lines(axes[0, 1], indexed, horizons)
+    draw_forest(axes[1, 0], indexed, horizon=24)
+    draw_effect_heatmap(axes[1, 1], indexed, horizons)
 
     handles = [
-        Line2D([0], [0], color=METHOD_COLORS[method], marker="s", linestyle="", markersize=7, label=method)
-        for method in methods
+        Line2D(
+            [0],
+            [0],
+            color=METHOD_COLORS[method],
+            marker=METHOD_MARKERS[method],
+            markeredgecolor=PALETTE["error"],
+            markeredgewidth=0.45,
+            linewidth=1.5,
+            markersize=5.0,
+            label=method,
+        )
+        for method in METHOD_ORDER
     ]
     fig.legend(
         handles=handles,
         loc="upper center",
-        bbox_to_anchor=(0.58, 0.945),
-        ncol=3,
+        bbox_to_anchor=(0.52, 0.995),
+        ncol=4,
         frameon=False,
         handletextpad=0.45,
-        columnspacing=1.3,
+        columnspacing=1.35,
     )
-    fig.add_artist(
-        Rectangle(
-            (0.012, 0.018),
-            0.976,
-            0.955,
-            transform=fig.transFigure,
-            fill=False,
-            edgecolor=PALETTE["rule"],
-            linewidth=1.45,
-            zorder=20,
-        )
-    )
-
-    fig.savefig(OUT, bbox_inches="tight", pad_inches=0.05)
+    fig.subplots_adjust(left=0.105, right=0.965, bottom=0.105, top=0.90)
+    fig.savefig(OUT, bbox_inches="tight", pad_inches=0.04)
     print(OUT)
     return 0
 
