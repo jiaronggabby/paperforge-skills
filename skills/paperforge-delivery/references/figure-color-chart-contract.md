@@ -243,8 +243,9 @@ is the evidence.
 - Use a neutral missing-data token or hatch.
 - Use square cells for conceptually square matrices.
 - Do not overlay numeric values inside heatmap cells by default. Keep the
-  heatmap as the visual pattern view and place exact values in a separate
-  table, panel, or supplement artifact with matching row and column order.
+  heatmap as the visual pattern view and place exact values in a manuscript or
+  supplement three-line table with matching row and column order. Do not render
+  that table as another figure panel.
 - Do not use method identity colors as a heatmap scale.
 - Use a sequential scale for confusion counts/proportions unless displaying
   signed residuals.

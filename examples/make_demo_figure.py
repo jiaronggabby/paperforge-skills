@@ -296,6 +296,7 @@ def draw_effect_heatmap(
         cmap=cmap,
         norm=TwoSlopeNorm(vmin=-limit, vcenter=0.0, vmax=limit),
         aspect="equal",
+        interpolation="nearest",
     )
 
     add_panel_label(ax, "d")
@@ -303,59 +304,19 @@ def draw_effect_heatmap(
     ax.set_xticks(np.arange(len(horizons)), horizons)
     ax.set_yticks(np.arange(len(methods)), methods)
     ax.tick_params(length=0)
+    ax.set_xticks(np.arange(-0.5, len(horizons), 1), minor=True)
+    ax.set_yticks(np.arange(-0.5, len(methods), 1), minor=True)
+    ax.grid(which="minor", color=PALETTE["background"], linewidth=1.4)
+    ax.tick_params(which="minor", bottom=False, left=False)
     for spine in ax.spines.values():
         spine.set_visible(False)
 
-    colorbar = ax.figure.colorbar(image, ax=ax, fraction=0.045, pad=0.035)
-    colorbar.set_label("Accuracy difference vs baseline", fontsize=7.8)
+    colorbar = ax.figure.colorbar(image, ax=ax, fraction=0.035, pad=0.025)
+    colorbar.set_label("Accuracy difference vs baseline", fontsize=8.0)
+    colorbar.set_ticks([-limit, 0.0, limit])
     colorbar.ax.tick_params(labelsize=7.0, length=2)
     colorbar.outline.set_linewidth(0.6)
     return matrix
-
-
-def draw_exact_value_table(
-    ax: plt.Axes,
-    matrix: np.ndarray,
-    horizons: list[int],
-) -> None:
-    methods = ["Prompt-only", "Audit-only", "PaperForge"]
-    ax.axis("off")
-    table = ax.table(
-        cellText=[
-            [method, *[f"{value:+.3f}" for value in row]]
-            for method, row in zip(methods, matrix)
-        ],
-        colLabels=["Method", *[f"{h} h" for h in horizons]],
-        colWidths=[0.30, 0.175, 0.175, 0.175, 0.175],
-        cellLoc="center",
-        loc="center",
-        bbox=[0.0, 0.12, 1.0, 0.76],
-    )
-    table.auto_set_font_size(False)
-    table.set_fontsize(7.2)
-    for (row, col), cell in table.get_celld().items():
-        cell.set_edgecolor(PALETTE["grid"])
-        cell.set_linewidth(0.6)
-        if row == 0:
-            cell.set_facecolor("#EEF1F5")
-            cell.set_text_props(weight="bold", color=PALETTE["text"])
-        elif col == 0:
-            cell.set_facecolor("#F7F8FA")
-            cell.set_text_props(color=PALETTE["text"], ha="left")
-        else:
-            cell.set_facecolor(PALETTE["background"])
-            cell.set_text_props(color=PALETTE["text"])
-    add_panel_label(ax, "e")
-    ax.text(
-        0.5,
-        0.02,
-        "Exact accuracy difference vs baseline",
-        transform=ax.transAxes,
-        ha="center",
-        va="bottom",
-        fontsize=8.4,
-        color=PALETTE["text"],
-    )
 
 
 def main() -> int:
@@ -371,20 +332,18 @@ def main() -> int:
         right=0.975,
         bottom=0.105,
         top=0.90,
-        wspace=1.05,
+        wspace=0.95,
         hspace=0.48,
     )
     ax_bars = fig.add_subplot(grid[0, 0:3])
     ax_lines = fig.add_subplot(grid[0, 3:6])
     ax_forest = fig.add_subplot(grid[1, 0:2])
-    ax_heatmap = fig.add_subplot(grid[1, 2:4])
-    ax_values = fig.add_subplot(grid[1, 4:6])
+    ax_heatmap = fig.add_subplot(grid[1, 2:6])
 
     draw_grouped_bars(ax_bars, indexed, horizon=24)
     draw_horizon_lines(ax_lines, indexed, horizons)
     draw_forest(ax_forest, indexed, horizon=24)
-    matrix = draw_effect_heatmap(ax_heatmap, indexed, horizons)
-    draw_exact_value_table(ax_values, matrix, horizons)
+    draw_effect_heatmap(ax_heatmap, indexed, horizons)
 
     handles = [
         Line2D(
