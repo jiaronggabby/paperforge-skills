@@ -242,10 +242,11 @@ is the evidence.
 - Label axes and colorbar units.
 - Use a neutral missing-data token or hatch.
 - Use square cells for conceptually square matrices.
-- Do not overlay numeric values inside heatmap cells by default. Keep the
-  heatmap as the visual pattern view and place exact values in a manuscript or
-  supplement three-line table with matching row and column order. Do not render
-  that table as another figure panel.
+- For a small matrix, show concise in-cell values when they remain legible at
+  final publication size. Switch annotation text between dark and white for
+  contrast. For a dense matrix, omit annotations and place exact values in a
+  manuscript or supplement three-line table. Never render that table as
+  another figure panel.
 - Do not use method identity colors as a heatmap scale.
 - Use a sequential scale for confusion counts/proportions unless displaying
   signed residuals.

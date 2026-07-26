@@ -295,25 +295,37 @@ def draw_effect_heatmap(
         matrix,
         cmap=cmap,
         norm=TwoSlopeNorm(vmin=-limit, vcenter=0.0, vmax=limit),
-        aspect="equal",
-        interpolation="nearest",
+        aspect="auto",
     )
+
+    for row_index in range(matrix.shape[0]):
+        for col_index in range(matrix.shape[1]):
+            value = matrix[row_index, col_index]
+            text_color = (
+                PALETTE["background"]
+                if abs(value) > limit * 0.62
+                else PALETTE["text"]
+            )
+            ax.text(
+                col_index,
+                row_index,
+                f"{value:+.3f}",
+                ha="center",
+                va="center",
+                fontsize=7.0,
+                color=text_color,
+            )
 
     add_panel_label(ax, "d")
     ax.set_xlabel("Forecast horizon (h)")
     ax.set_xticks(np.arange(len(horizons)), horizons)
     ax.set_yticks(np.arange(len(methods)), methods)
     ax.tick_params(length=0)
-    ax.set_xticks(np.arange(-0.5, len(horizons), 1), minor=True)
-    ax.set_yticks(np.arange(-0.5, len(methods), 1), minor=True)
-    ax.grid(which="minor", color=PALETTE["background"], linewidth=1.4)
-    ax.tick_params(which="minor", bottom=False, left=False)
     for spine in ax.spines.values():
         spine.set_visible(False)
 
-    colorbar = ax.figure.colorbar(image, ax=ax, fraction=0.035, pad=0.025)
-    colorbar.set_label("Accuracy difference vs baseline", fontsize=8.0)
-    colorbar.set_ticks([-limit, 0.0, limit])
+    colorbar = ax.figure.colorbar(image, ax=ax, fraction=0.045, pad=0.035)
+    colorbar.set_label("Accuracy difference vs baseline", fontsize=7.8)
     colorbar.ax.tick_params(labelsize=7.0, length=2)
     colorbar.outline.set_linewidth(0.6)
     return matrix
@@ -324,26 +336,16 @@ def main() -> int:
     horizons = sorted({horizon for _, horizon in indexed})
     apply_paper_style()
 
-    fig = plt.figure(figsize=(9.6, 5.25))
-    grid = fig.add_gridspec(
+    fig, axes = plt.subplots(
         2,
-        6,
-        left=0.075,
-        right=0.975,
-        bottom=0.105,
-        top=0.90,
-        wspace=0.95,
-        hspace=0.48,
+        2,
+        figsize=(7.4, 5.25),
+        gridspec_kw={"wspace": 0.38, "hspace": 0.48},
     )
-    ax_bars = fig.add_subplot(grid[0, 0:3])
-    ax_lines = fig.add_subplot(grid[0, 3:6])
-    ax_forest = fig.add_subplot(grid[1, 0:2])
-    ax_heatmap = fig.add_subplot(grid[1, 2:6])
-
-    draw_grouped_bars(ax_bars, indexed, horizon=24)
-    draw_horizon_lines(ax_lines, indexed, horizons)
-    draw_forest(ax_forest, indexed, horizon=24)
-    draw_effect_heatmap(ax_heatmap, indexed, horizons)
+    draw_grouped_bars(axes[0, 0], indexed, horizon=24)
+    draw_horizon_lines(axes[0, 1], indexed, horizons)
+    draw_forest(axes[1, 0], indexed, horizon=24)
+    draw_effect_heatmap(axes[1, 1], indexed, horizons)
 
     handles = [
         Line2D(
@@ -368,6 +370,7 @@ def main() -> int:
         handletextpad=0.45,
         columnspacing=1.35,
     )
+    fig.subplots_adjust(left=0.105, right=0.965, bottom=0.105, top=0.90)
     fig.savefig(OUT, bbox_inches="tight", pad_inches=0.04)
     print(OUT)
     return 0
