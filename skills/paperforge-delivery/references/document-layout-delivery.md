@@ -75,10 +75,17 @@ Default to these internal records per delivery cycle:
 4. `figure_style_registry.json`;
 5. `package_audit.json`.
 
-Do not create per-artifact Markdown summaries. Put temporary notes in one
-ignored work log only when necessary, then remove it. Keep Markdown only when it
-is a true source document, required README, manuscript source, response letter,
-or sole reproducibility record.
+Do not create per-artifact Markdown summaries or a reviewer/self-review `.md`
+file. Put structured findings in the existing `package_audit.json`, a single
+`review_findings.json`, or the approved audit workbook. Keep Markdown only when
+it is a true source document, required README, manuscript source, response
+letter, or sole reproducibility record supplied by the user.
+
+Do not create `*.tmp`, `*.temp`, `*.bak`, `*.swp`, or nested `tmp/`, `temp/`,
+`scratch/`, `preview/`, or timestamped directories. If a tool requires
+transient files, use one flat ignored `work/` directory, never write generated
+Markdown there, and remove it after validation. The final project handoff must
+contain no transient directory or generated review Markdown.
 
 ## Formal submission package
 

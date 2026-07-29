@@ -113,6 +113,14 @@ def validate_skill(path: Path) -> list[str]:
             for token, rule in required_geometry_rules.items():
                 if token not in contract_text:
                     errors.append(f"{figure_contract}: missing {rule}")
+        caption_validator = path / "scripts" / "validate_figure_captions.py"
+        if not caption_validator.exists():
+            errors.append(f"{caption_validator}: missing caption validator")
+        else:
+            validator_text = caption_validator.read_text(encoding="utf-8")
+            for token in ("panel_descriptions", "panel_marker_position", "never writes Markdown"):
+                if token not in validator_text:
+                    errors.append(f"{caption_validator}: missing caption audit rule {token}")
     return errors
 
 

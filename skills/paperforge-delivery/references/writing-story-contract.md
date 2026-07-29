@@ -159,6 +159,15 @@ Make captions stand alone. Identify:
 - evaluation split/status;
 - only the directional interpretation supported by the display.
 
+For a multipart figure, treat the caption mapping as a closed set. The figure
+registry must contain the exact rendered panel-label list, and the caption must
+describe every label exactly once in that order. Each description must identify
+the plotted object and relevant subset or metric; do not write “A–D show ...”
+without explaining what A, B, C, and D individually show. Do not introduce a
+caption label that is absent from the figure. Freeze the venue-required case
+(`a, b, c` or `A, B, C`) across all figures; if the venue is unspecified, use
+lowercase labels consistently.
+
 Do not put workflow instructions, prompt labels, or unsupported conclusions in
 captions.
 

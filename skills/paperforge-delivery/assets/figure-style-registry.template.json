@@ -39,6 +39,12 @@
   "panel_labels": {
     "anchor": "axes_upper_left",
     "offset_points": [-8, 4],
+    "case": "venue-defined",
+    "default_case_when_unspecified": "lowercase",
+    "font_size_pt_at_final_size": "venue-defined-default-8",
+    "font_weight": "bold",
+    "font_style": "upright",
+    "same_case_and_size_across_manuscript": true,
     "horizontal_alignment": "right",
     "vertical_alignment": "bottom",
     "minimum_left_gap_points": 4,
@@ -55,6 +61,16 @@
     "word_fixed_canvas": true,
     "word_zero_crop": true
   },
+  "caption_contract": {
+    "panel_case": "venue-defined",
+    "default_case_when_unspecified": "lowercase",
+    "same_case_across_manuscript": true,
+    "require_one_to_one_panel_mapping": true,
+    "require_panel_order_in_caption": true,
+    "caption_stored_in": "manuscript_or_latex_source",
+    "standalone_generated_caption_markdown": false
+  },
+  "figures": [],
   "export": {
     "vector_master": true,
     "png_dpi": 600,

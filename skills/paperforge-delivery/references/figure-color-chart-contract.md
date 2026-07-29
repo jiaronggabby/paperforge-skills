@@ -342,6 +342,14 @@ Require exactly one label per panel, its right edge at least `4 pt` left of the
 axes left edge, its bottom edge `1–10 pt` above the axes top edge, and its full
 bounding box inside the figure canvas. Any failure blocks delivery.
 
+Panel-letter case and size are venue rules, not universal scientific rules.
+Read the target journal instructions first. For example, Nature's final-artwork
+guidance specifies bold upright lowercase `a, b, c` at 8 pt, while some
+Elsevier journal guides specify capital `A, B, C`. When no target rule is
+available, use bold upright lowercase letters at 8 pt at the final physical
+size, and keep case, font, weight, and size identical across the manuscript.
+Never mix uppercase and lowercase across figures.
+
 ### Heatmap geometry and Word-centering hard contract
 
 Heatmaps must remain stable for different matrix shapes and label lengths:

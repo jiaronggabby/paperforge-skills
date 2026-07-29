@@ -55,12 +55,16 @@ data permissions, or a venue choice that materially changes formatting.
   copy an entire repository into `v2`, `v3`, `final`, or timestamped clones.
 - Create a new versioned delivery folder only for a formal manuscript package,
   not for every failed attempt or intermediate artifact.
-- Keep scratch files, previews, extraction caches, temporary scripts, and failed
-  conversions under one ignored `work/` or `tmp/` directory. Remove them after
-  validation unless they are the only reproducibility evidence.
-- Do not create a companion Markdown report for every Word file, spreadsheet,
-  figure, or conversion. Maintain at most one paper contract, one claim/evidence
-  map, one literature benchmark table, one figure registry, and one final audit
+- Do not create standalone reviewer, self-review, figure, conversion, or audit
+  Markdown files. Write structured findings into the existing JSON/CSV/XLSX
+  audit record or one machine-readable review record per delivery cycle.
+- Do not create `*.tmp`, `*.temp`, `*.bak`, `*.swp`, or nested `tmp/`, `temp/`,
+  `scratch/`, `preview/`, or timestamped worktrees. If transient computation is
+  unavoidable, use one ignored project-local `work/` directory, keep it flat,
+  use machine-readable/log files rather than Markdown, and remove it after
+  validation. Final delivery and code packages must contain none of these.
+- Maintain at most one paper contract, one claim/evidence map, one literature
+  benchmark table, one figure registry, one caption audit, and one final audit
   record per delivery cycle.
 - If Word, PowerPoint, or Excel is open, do not quit or kill it. Work on copies
   when conversion or automation could touch an active file.
@@ -139,6 +143,12 @@ Generate figures from canonical tables, predictions, or code outputs rather
 than screenshots. Preserve source data and plotting code. Render at final
 physical dimensions and inspect the actual output.
 
+For every multipart figure, the registry must list the rendered panel labels and
+one caption description for each label. The caption audit must confirm a
+one-to-one mapping in panel order; an unexplained or extra A/B/C/D panel blocks
+delivery. Panel-letter case is venue-defined and then frozen across the paper.
+If no venue rule is available, use lowercase `a, b, c, ...` consistently.
+
 ### 7. Run calibrated review and compliance checks
 
 Apply current official venue rules, the applicable reporting guideline, the
@@ -207,8 +217,11 @@ blocked:
 - the current venue and reporting requirements are verified;
 - the 20-paper benchmark is complete or has a documented genuine shortfall;
 - originals are unchanged, temporary files are removed, and final files render;
-- the submission and code packages contain no stale drafts, scratch Markdown,
-  failed outputs, caches, credentials, private data, or nested repositories;
+- the submission and code packages contain no stale drafts, generated review
+  Markdown, scratch Markdown, `*.tmp` files, temporary directories, failed
+  outputs, caches, credentials, private data, or nested repositories;
+- every multipart figure has an audited one-to-one caption mapping for all
+  rendered panel letters;
 - the final response gives the exact paths, validation results, commit/hash, and
   any remaining author-supplied truth or unsupported claim.
 
